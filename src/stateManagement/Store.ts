@@ -1,11 +1,13 @@
 // store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import modeReducer from './theme';
-import tooltipTextReducer from './tooltipText';
+import modeReducer from './themeFeature';
+import tooltipTextSliceReducers from './tooltipTextFeature';
+import todoSliceReducer from './Todo/todoLists'
 const store = configureStore({
   reducer: {
     themeMode: modeReducer,
-    tooltipText:tooltipTextReducer
+    tooltipText:tooltipTextSliceReducers,
+    todo:todoSliceReducer
   },
 });
 
