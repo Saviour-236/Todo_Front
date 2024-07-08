@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../stateManagement/Store';
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
-// import axios from 'axios';
+import toast, { Toaster } from "react-hot-toast"
+import axios from 'axios';
+import { AppDispatch } from '../stateManagement/Store';
+import { update_user } from '../stateManagement/user_slice';
 const SignInForm: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [error,] = useState<string>('');
+    const [error, setError] = useState<string>('');
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+    const dispatch: AppDispatch = useDispatch<AppDispatch>();
     const modeBit = useSelector((state: RootState) => state.themeMode);
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        // if (!email || !password) {
-        //     setError('Please fill in both fields');
-        // } else {
-        //     setError('');
-        // }
-        // axios.get('http://localhost:5173/')
-        //     .then(response => console.log(response.json))
-        //     .catch(error => console.error('Error:', error))
+        if (!email || !password) {
+            setError('Please fill in both fields');
+            return;
+        } else {
+            setError('');
+        }
+        let user = {
+            email: email,
+            password: password,
+        }
+        await axios.get('http://localhost:3000/signin', { params: user })
+            .then(response => {
+                dispatch(update_user(response.data));
+                window.location.href = '/'
+            }
+            )
+            .catch(error => toast.error(error.response.data.message))
     };
 
     const togglePasswordVisibility = () => {
@@ -30,6 +43,7 @@ const SignInForm: React.FC = () => {
 
     return (
         <div className="flex items-center justify-center min-h-[86.5vh]">
+            <Toaster />
             <form onSubmit={handleSubmit} className={`${modeBit ? "bg-black shadow-md shadow-[#2563eb] border-[#2563eb] border" : "bg-white"} p-6 rounded-md shadow-black shadow-lg w-full max-w-sm`}>
                 <h2 className="text-2xl font-bold mb-6 text-center text-[#2563eb]">Sign In</h2>
                 {error && <div className="mb-4 text-red-500">{error}</div>}

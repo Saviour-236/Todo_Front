@@ -5,11 +5,14 @@ import { toggleModeReducer } from "../stateManagement/themeFeature";
 import { AppDispatch, RootState } from "../stateManagement/Store";
 import { initializeTooltipReducer, removeTooltipTextReducer } from "../stateManagement/tooltipTextFeature";
 
+
+
 const Header: React.FC = () => {
     const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
     const dispatch = useDispatch<AppDispatch>();
     const modeBit = useSelector((state: RootState) => state.themeMode);
-
+    const user_name = useSelector((state:RootState) => state.user.name)
+    const user_pic =  useSelector((state:RootState) => state.user.profile_pic)
     const modeHandler = () => {
         dispatch(toggleModeReducer(!modeBit));
     };
@@ -52,7 +55,7 @@ const Header: React.FC = () => {
         <>
             <nav className="block w-full max-w-screen-xl px-4 py-3 mx-auto shadow-md rounded-xl bg-gradient-to-tr from-blue-gray-900 to-blue-gray-800">
                 <div className="flex flex-wrap items-center justify-between gap-y-4">
-                    <img src="logo.png" className=" p-[0.5rem] rounded-full shadow-sm shadow-white " />
+                    <img src="logo.png" className=" p-[0.5rem] rounded-full shadow-sm shadow-white " />{user_name}
                     <div className="flex gap-1 ml-auto md:mr-4">
                         <button
                             id="themeToggleButton"
@@ -75,7 +78,7 @@ const Header: React.FC = () => {
                             type="button"
                         >
                             <span>
-                                <img src="profilePic.png " className="h-[2rem] w-[2rem]"></img>
+                                <img src={user_pic?user_pic:"profilePic.png "} className="h-[2rem] w-[2rem]"></img>
                             </span>
 
                         </button>

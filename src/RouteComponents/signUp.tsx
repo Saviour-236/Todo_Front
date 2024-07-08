@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../stateManagement/Store';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../stateManagement/Store';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
-
+import toast, { Toaster } from 'react-hot-toast';
+import axios from 'axios'
+import { update_user } from '../stateManagement/user_slice';
 const SignUpForm: React.FC = () => {
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
@@ -11,15 +13,29 @@ const SignUpForm: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
     const modeBit = useSelector((state: RootState) => state.themeMode);
-
-    const handleSubmit = (event: React.FormEvent) => {
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!name || !email || !password) {
             setError('Please fill in all fields');
+            return;
         } else {
             setError('');
-            // Add sign-up logic here
-            console.log('Name:', name, 'Email:', email, 'Password:', password);
+            let user = {
+                name: name,
+                email: email,
+                password: password
+            }
+            await axios.post('http://localhost:3000/signup', user)
+                .then(response => {
+                    let { name, profile_pic } = response.data
+                    dispatch(update_user(response.data)) 
+                    console.log({ name, profile_pic })
+                    navigate('/');
+                })
+                .catch(error => toast.error(error.response.data.message))
+
         }
     };
 
@@ -29,6 +45,7 @@ const SignUpForm: React.FC = () => {
 
     return (
         <div className="flex items-center justify-center min-h-[86.5vh]">
+            <Toaster />
             <form onSubmit={handleSubmit} className={`${modeBit ? "bg-black shadow-md shadow-[#2563eb] border-[#2563eb] border" : "bg-white"} p-6 rounded-md shadow-black shadow-lg w-full max-w-sm`}>
                 <h2 className="text-2xl font-bold mb-6 text-center text-[#2563eb]">Sign Up</h2>
                 {error && <div className="mb-4 text-red-500">{error}</div>}
